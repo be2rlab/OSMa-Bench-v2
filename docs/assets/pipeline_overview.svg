@@ -1,0 +1,70 @@
+<svg width="1180" height="360" viewBox="0 0 1180 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#333"/>
+    </marker>
+    <style>
+      .box { fill: #f7f7f7; stroke: #222; stroke-width: 1.4; rx: 14; }
+      .title { font: 700 18px sans-serif; fill: #111; }
+      .text { font: 14px sans-serif; fill: #222; }
+      .small { font: 12px sans-serif; fill: #555; }
+      .arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .group { fill: #ffffff; stroke: #999; stroke-width: 1; stroke-dasharray: 6 5; rx: 18; }
+    </style>
+  </defs>
+
+  <rect x="20" y="35" width="1140" height="290" class="group"/>
+  <text x="40" y="65" class="title">OSMa-Bench++ pipeline</text>
+
+  <rect x="55" y="105" width="150" height="90" class="box"/>
+  <text x="75" y="135" class="title">Prompts</text>
+  <text x="75" y="160" class="text">Furniture</text>
+  <text x="75" y="180" class="text">Manipulands</text>
+
+  <path d="M205 150 L260 150" class="arrow"/>
+
+  <rect x="260" y="105" width="155" height="90" class="box"/>
+  <text x="280" y="135" class="title">SceneSmith</text>
+  <text x="280" y="160" class="text">Generated scenes</text>
+  <text x="280" y="180" class="small">External repo</text>
+
+  <path d="M415 150 L470 150" class="arrow"/>
+
+  <rect x="470" y="105" width="155" height="90" class="box"/>
+  <text x="490" y="135" class="title">MuJoCo/USD</text>
+  <text x="490" y="160" class="text">Export</text>
+  <text x="490" y="180" class="text">Texture fix</text>
+
+  <path d="M625 150 L680 150" class="arrow"/>
+
+  <rect x="680" y="105" width="170" height="90" class="box"/>
+  <text x="700" y="135" class="title">Habitat</text>
+  <text x="700" y="160" class="text">SceneDataset</text>
+  <text x="700" y="180" class="text">Packed scenes</text>
+
+  <path d="M850 150 L905 150" class="arrow"/>
+
+  <rect x="905" y="105" width="180" height="90" class="box"/>
+  <text x="925" y="135" class="title">HaDaGe</text>
+  <text x="925" y="160" class="text">RGB-D sequences</text>
+  <text x="925" y="180" class="text">Lighting variants</text>
+
+  <rect x="260" y="235" width="240" height="60" class="box"/>
+  <text x="280" y="260" class="title">Prompt metadata</text>
+  <text x="280" y="282" class="text">Original SceneSmith prompt</text>
+
+  <path d="M337 195 L337 235" class="arrow"/>
+
+  <rect x="560" y="235" width="220" height="60" class="box"/>
+  <text x="580" y="260" class="title">PromptGT QA</text>
+  <text x="580" y="282" class="text">Questions from prompts</text>
+
+  <path d="M500 265 L560 265" class="arrow"/>
+
+  <rect x="845" y="235" width="240" height="60" class="box"/>
+  <text x="865" y="260" class="title">OSMa-Bench VQA</text>
+  <text x="865" y="282" class="text">Direct graph answering</text>
+
+  <path d="M780 265 L845 265" class="arrow"/>
+  <path d="M995 195 L995 235" class="arrow"/>
+</svg>

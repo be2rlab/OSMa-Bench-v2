@@ -1,0 +1,299 @@
+diff --git a/configs/lighting/light_settings_camera.json b/configs/lighting/light_settings_camera.json
+index 7acc290..7f6da90 100644
+--- a/configs/lighting/light_settings_camera.json
++++ b/configs/lighting/light_settings_camera.json
+@@ -8,4 +8,4 @@
+             "life_intervals": [[null, null]]
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/configs/lighting/light_settings_dynamic_lights.json b/configs/lighting/light_settings_dynamic_lights.json
+index 3a3dd72..47f3d95 100644
+--- a/configs/lighting/light_settings_dynamic_lights.json
++++ b/configs/lighting/light_settings_dynamic_lights.json
+@@ -241,4 +241,4 @@
+         "life_intervals": [[null, null]]
+       }
+     }
+-  }
+\ No newline at end of file
++  }
+diff --git a/configs/lighting/light_settings_no_lights.json b/configs/lighting/light_settings_no_lights.json
+index d1071d0..74ff87a 100644
+--- a/configs/lighting/light_settings_no_lights.json
++++ b/configs/lighting/light_settings_no_lights.json
+@@ -1,4 +1,11 @@
+ {
+-    "lights": {
++  "lights": {
++    "0": {
++      "type": "camera",
++      "position": [0.0, 0.0, 0.0, 1.0],
++      "intensity": -0.35,
++      "color": [1.0, 1.0, 1.0],
++      "life_intervals": [[null, null]]
+     }
+-}
+\ No newline at end of file
++  }
++}
+diff --git a/generate.py b/generate.py
+index 9bd5619..9f929cc 100644
+--- a/generate.py
++++ b/generate.py
+@@ -3,6 +3,7 @@ import os
+ from pathlib import Path
+ 
+ import hadage as hdg
++from hadage.core.simulator import ensure_navmesh
+ 
+ 
+ def get_parser():
+@@ -36,11 +37,17 @@ def get_parser():
+     return parser
+     
+ 
+-def create_experiment(sim_settings_filename):
+-    logger = hdg.ExperimentLogger(sim_settings_filename)
++def create_experiment(sim_settings_filename, package_dir_path="./", data_dir="/data", output_path="generated/"):
++    logger = hdg.ExperimentLogger(
++        sim_settings_filename,
++        package_dir_path=package_dir_path,
++        data_dir=data_dir,
++        output_path=output_path,
++    )
+     sim_settings, _ = logger.get_settings()
+ 
+     sim = hdg.create_simulator(sim_settings)
++    sim = ensure_navmesh(sim, sim_settings)
+ 
+     return {'logger': logger, 'sim': sim}
+ 
+@@ -73,7 +80,12 @@ def main(args):
+         ]
+         
+     for i, sim_settings_filename in enumerate(sim_settings_pathes):
+-        experiment = create_experiment(sim_settings_filename)
++        experiment = create_experiment(
++            sim_settings_filename,
++            package_dir_path=args.package_dir_path,
++            data_dir=args.data_dir,
++            output_path=args.output_path,
++        )
+         run_experiment(experiment, bar_inds=[i*2, i*2 + 1])
+         
+ 
+diff --git a/hadage/core/lights.py b/hadage/core/lights.py
+index 16c5272..55639ce 100644
+--- a/hadage/core/lights.py
++++ b/hadage/core/lights.py
+@@ -42,26 +42,34 @@ def set_light_setup(sim, settings, life_index):
+     setup_name = f'lights_setup_{life_index}'
+ 
+     for setup_id, setup_params in settings['lights'].items():
+-        intervals = setup_params['life_intervals']
++        light_type = setup_params.get('type', 'point')
++        position = setup_params.get('position', [0.0, 0.0, 0.0, 1.0])
++        intensity = float(setup_params.get('intensity', 1.0))
++        color = np.array(setup_params.get('color', [1.0, 1.0, 1.0]), dtype=float)
++        intervals = setup_params.get('life_intervals', [[None, None]])
+ 
+         for interval in intervals:
+-            if (interval[0] is None or interval[0] <= life_index) and (interval[1] is None or life_index < interval[1]):
+-                intens_koef = 0.1 if setup_params['intensity'] < 0 else 2.5
++            start = interval[0]
++            end = interval[1]
++
++            if (start is None or start <= life_index) and (end is None or life_index < end):
++                intens_koef = 0.1 if intensity < 0 else 2.5
++
++                vec = list(position)
++                if len(vec) == 3:
++                    vec += [1.0]
++
+                 info = {
+-                    'model': LIGHT_TYPES_MAPPING[setup_params['type']],
+-                    'vector': setup_params['position'],
+-                    'color': list(np.clip(setup_params['color'], 0.0, 1.0) * setup_params['intensity'] * intens_koef)
++                    'model': LIGHT_TYPES_MAPPING[light_type],
++                    'vector': vec,
++                    'color': list(np.clip(color, 0.0, 1.0) * intensity * intens_koef)
+                 }
+ 
+-                if len(info['vector']) == 3:
+-                    info['vector'] += [1.0]
+-
+                 setup.append((setup_id, info))
+-
+                 break
+ 
+     sim.set_light_setup(
+-        [LightInfo(**info) for (_, info) in setup], 
++        [LightInfo(**info) for (_, info) in setup],
+         setup_name
+     )
+ 
+@@ -70,16 +78,20 @@ def set_light_setup(sim, settings, life_index):
+ 
+ def change_lights(sim, sim_settings, light_settings, life_index):
+     if not sim_settings['override_scene_light_defaults']:
++        print("[LIGHT DEBUG] override_scene_light_defaults=False, skip")
+         return sim, None
+-    
++
+     sim, setup_name, setup = set_light_setup(sim, light_settings, life_index)
+ 
++    print("[LIGHT DEBUG] before reconfigure:")
++    print("  setup_name =", setup_name)
++    print("  num lights =", len(setup))
++
+     sim_settings = sim_settings.copy()
+     sim_settings['scene_light_setup'] = setup_name
+     sim_settings['override_scene_light_defaults'] = True
+ 
+     new_cfg = make_cfg(sim_settings)
+-
+     agent_states = [agent.get_state() for agent in sim.agents]
+ 
+     sim.reconfigure(new_cfg)
+@@ -87,4 +99,9 @@ def change_lights(sim, sim_settings, light_settings, life_index):
+     for i, state in enumerate(agent_states):
+         sim.initialize_agent(i, state)
+ 
++    print("[LIGHT DEBUG] after reconfigure:")
++    print("  setup_name =", setup_name)
++    print("  num lights =", len(setup))
++    print("  applied settings =", light_settings)
++
+     return sim, setup
+\ No newline at end of file
+diff --git a/hadage/core/logger.py b/hadage/core/logger.py
+index 0049539..1619b1a 100644
+--- a/hadage/core/logger.py
++++ b/hadage/core/logger.py
+@@ -53,6 +53,9 @@ class ExperimentLogger:
+         light_settings_path = os.path.join(configs_path, 'lighting/', self.sim_settings['light_settings_filename'])
+         self.light_settings = load_light_settings(light_settings_path)
+ 
++        print("LIGHT FILE:", self.sim_settings["light_settings_filename"])
++        print("LOADED LIGHTS:", self.light_settings)
++
+         self.output_dir_path, self.image_output_path, sim_settings_output_path, lights_output_path = get_output_paths(
+             output_path, 
+             self.sim_settings['dataset_name'], 
+diff --git a/hadage/core/settings.py b/hadage/core/settings.py
+index 25fe9b8..f82f61a 100644
+--- a/hadage/core/settings.py
++++ b/hadage/core/settings.py
+@@ -9,6 +9,9 @@ from habitat_sim.bindings import built_with_bullet
+ 
+ from hadage.core import actions
+ 
++def get_sensor_orientation(settings):
++    pitch_deg = settings.get("camera_pitch_deg", 0.0)
++    return [float(np.deg2rad(pitch_deg)), 0.0, 0.0]
+ 
+ def get_default_sim_settings():
+     return {
+@@ -27,6 +30,7 @@ def get_default_sim_settings():
+         "clear_color": mn.Color4.from_linear_rgb_int(0), # black
+         # vertical offset of the camera from the agent's root position (e.g. height of eyes)
+         "sensor_height": 1.5,
++        "camera_pitch_deg": 0.0,
+         # defaul agent ix
+         "default_agent": 0,
+         # radius of the agent cylinder approximation for navmesh
+@@ -90,6 +94,7 @@ def make_cfg(settings):
+ 
+     def create_camera_spec(**kw_args):
+         camera_sensor_spec = habitat_sim.CameraSensorSpec()
++        camera_sensor_spec.orientation = get_sensor_orientation(settings)
+         camera_sensor_spec.sensor_type = habitat_sim.SensorType.COLOR
+         camera_sensor_spec.resolution = mn.Vector2i(
+             [settings["height"], settings["width"]]
+@@ -317,6 +322,12 @@ def load_replica_semseg_classes(data_dir, scene_name):
+ 
+     return classes
+ 
++def load_scenesmith_semseg_classes(data_dir):
++    with open(
++        os.path.join(data_dir, 'scenesmith/configs/ssd/sceneSmith_semantic_lexicon.json'),
++        'r'
++    ) as classes_file:
++        return json.load(classes_file)
+ 
+ def load_replica_cad_semseg_classes(data_dir):
+     with open(os.path.join(data_dir, 'replica_cad/configs/ssd/replicaCAD_semantic_lexicon.json'), 'r') as classes_file:
+@@ -398,10 +409,22 @@ def load_sim_settings(json_path, data_path, dataset=None, scene_name=None):
+         )
+         config_path = f"replica/replica.scene_dataset_config.json"
+         semseg_classes = load_replica_semseg_classes(data_path, scene_name) if load_semseg_classes else None
+-    elif dataset == 'replica_cad':
++    elif dataset == "replica_cad":
+         scene = scene_name
+-        config_path = f"replica_cad/replicaCAD.scene_dataset_config.json"
+         semseg_classes = load_replica_cad_semseg_classes(data_path) if load_semseg_classes else None
++        settings['scene'] = scene
++        settings['scene_dataset_config_file'] = os.path.join(
++            data_path, "replica_cad/replicaCAD.scene_dataset_config.json"
++        )
++    elif dataset == "scenesmith":
++        scene = scene_name
++        config_path = os.path.join(
++            data_path, "scenesmith", "sceneSmith.scene_dataset_config.json"
++        )
++        semseg_classes = (
++            load_scenesmith_semseg_classes(data_path)
++            if load_semseg_classes else None
++        )
+     else:
+         raise ValueError(f'No such dataset: {dataset}')
+ 
+diff --git a/hadage/core/simulator.py b/hadage/core/simulator.py
+index 05fca1a..7517a9d 100644
+--- a/hadage/core/simulator.py
++++ b/hadage/core/simulator.py
+@@ -1,5 +1,6 @@
+ import random
+-
++import numpy as np
++import habitat_sim
+ import habitat_sim
+ 
+ from hadage.core.settings import make_cfg
+@@ -24,4 +25,32 @@ def place_agent(sim, agent_index, start_point, start_rotation=None):
+ 
+     sim.initialize_agent(agent_index, agent_state)
+ 
++    return sim
++
++def ensure_navmesh(sim, sim_settings):
++    if sim.pathfinder.is_loaded:
++        return sim
++
++    print("[WARN] Pathfinder is not initialized. Recomputing navmesh...")
++
++    navmesh_settings = habitat_sim.nav.NavMeshSettings()
++    navmesh_settings.set_defaults()
++
++    agent_radius = sim_settings.get("agent_radius", 0.2)
++    sensor_height = sim_settings.get("sensor_height", 1.5)
++    move_amount = sim_settings.get("move_actuation_amount", 0.06)
++
++    navmesh_settings.agent_radius = agent_radius
++    navmesh_settings.agent_height = sensor_height
++    navmesh_settings.cell_size = move_amount / 2.0
++    navmesh_settings.edge_max_len = agent_radius * 8.0
++
++    if hasattr(navmesh_settings, "include_static_objects"):
++        navmesh_settings.include_static_objects = sim_settings.get(
++            "navmesh_include_static_objects", True
++        )
++
++    ok = sim.recompute_navmesh(sim.pathfinder, navmesh_settings)
++    print(f"[INFO] recompute_navmesh -> {ok}, area={sim.pathfinder.navigable_area}")
++
+     return sim
+\ No newline at end of file

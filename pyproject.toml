@@ -1,0 +1,20 @@
+[project]
+name = "osmabench-pp"
+version = "0.1.0"
+description = "Draft codebase for OSMa-Bench++ prompt-grounded evaluation pipeline."
+requires-python = ">=3.9"
+dependencies = [
+    "openai",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "pyyaml",
+    "tqdm",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"

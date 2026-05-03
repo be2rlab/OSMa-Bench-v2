@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+
+# Logs / runtime
+*.log
+runner_logs/
+
+# Large/generated outputs
+outputs/*
+!outputs/.gitkeep
+
+# External repositories
+data/external/*
+!data/external/.gitkeep
+
+# Generated scenes and packed Habitat datasets
+data/scenes/*
+!data/scenes/.gitkeep
+
+# Generated VQA / PromptGT artifacts
+data/vqa/*
+!data/vqa/.gitkeep
+data/osma_vqa_workdir/
+data/osma_vqa_workdir_test/
+data/hadage_data/
+
+# Archives/media
+*.zip
+*.tar
+*.tar.gz
+*.mp4
+*.avi
+*.mov
+
+# generated prompt smoke outputs
+smoke_furniture_prompts/
+smoke_manipuland_prompts/
+
+# Python packaging metadata
+*.egg-info/
+src/*.egg-info/
