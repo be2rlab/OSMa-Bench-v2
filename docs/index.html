@@ -16,7 +16,6 @@
         <a href="#pipeline">Pipeline</a>
         <a href="#dataset">Dataset</a>
         <a href="#results">Results</a>
-        <a href="#materials">Materials</a>
         <a href="#citation">Citation</a>
       </div>
     </nav>
@@ -28,11 +27,10 @@
         A manipulation-oriented extension of OSMa-Bench for evaluating open-vocabulary semantic maps under controlled synthetic conditions:
         clutter, small objects, support relations, containment, and lighting variation.
       </p>
-      <div class="button-row">
-        <a class="button primary" href="https://arxiv.org/abs/2605.26831">Paper</a>
+      <div class="button-row" aria-label="Project links">
+        <a class="button primary" href="https://arxiv.org/abs/2605.26831">arXiv</a>
         <a class="button" href="https://github.com/be2rlab/OSMa-Bench-v2">Code</a>
         <a class="button" href="TODO_HUGGINGFACE_URL">Hugging Face</a>
-        <a class="button" href="#materials">Project materials</a>
       </div>
     </div>
   </header>
@@ -59,40 +57,55 @@
     <section class="section" id="pipeline">
       <p class="section-label">Pipeline</p>
       <h2>Prompt-grounded scene generation and evaluation</h2>
-      <div class="pipeline-grid">
-        <article class="card">
-          <span class="step">01</span>
-          <h3>Prompt generation</h3>
-          <p>Generate diverse indoor scene descriptions with an LLM, then filter near-duplicates using cosine similarity to retain varied layouts, small objects, clutter, and spatial relations.</p>
-        </article>
-        <article class="card">
-          <span class="step">02</span>
-          <h3>Scene synthesis</h3>
-          <p>Create 3D scenes in SceneSmith directly from the generated prompts.</p>
-        </article>
-        <article class="card">
-          <span class="step">03</span>
-          <h3>Habitat conversion</h3>
-          <p>Convert SceneSmith assets into a Habitat-compatible format for simulation.</p>
-        </article>
-        <article class="card">
-          <span class="step">04</span>
-          <h3>RGB-D generation</h3>
-          <p>Use HaDaGe to generate RGB-D trajectories under multiple lighting conditions.</p>
-        </article>
-        <article class="card">
-          <span class="step">05</span>
-          <h3>Semantic mapping</h3>
-          <p>Build semantic maps using ConceptGraphs and BBQ.</p>
-        </article>
-        <article class="card">
-          <span class="step">06</span>
-          <h3>Evaluation</h3>
-          <p>Evaluate segmentation quality and scene-graph completeness with prompt-grounded object counting and relation queries.</p>
-        </article>
+
+      <div class="pipeline-layout">
+        <ol class="pipeline-list">
+          <li>
+            <span class="step">01</span>
+            <div>
+              <h3>Prompt generation</h3>
+              <p>Generate diverse indoor scene descriptions with an LLM, then filter near-duplicates using cosine similarity to retain varied layouts, small objects, clutter, and spatial relations.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step">02</span>
+            <div>
+              <h3>Scene synthesis</h3>
+              <p>Create 3D scenes in SceneSmith directly from the generated prompts.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step">03</span>
+            <div>
+              <h3>Habitat conversion</h3>
+              <p>Convert SceneSmith assets into a Habitat-compatible format for simulation.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step">04</span>
+            <div>
+              <h3>RGB-D sequence generation</h3>
+              <p>Use HaDaGe to generate RGB-D trajectories under multiple lighting conditions.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step">05</span>
+            <div>
+              <h3>Semantic mapping</h3>
+              <p>Build semantic maps using ConceptGraphs and BBQ.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step">06</span>
+            <div>
+              <h3>Evaluation</h3>
+              <p>Evaluate segmentation quality and scene-graph completeness with prompt-grounded object counting and relation queries.</p>
+            </div>
+          </li>
+        </ol>
       </div>
 
-      <figure class="figure-card wide-figure">
+      <figure class="figure-card pipeline-figure">
         <img src="assets/images/full_pipeline.png" alt="OSMa-Bench++ pipeline: prompt generation, SceneSmith synthesis, Habitat conversion, RGB-D trajectory generation, semantic mapping, and evaluation." />
         <figcaption>OSMa-Bench++ pipeline: prompt generation, SceneSmith synthesis, Habitat conversion, RGB-D trajectory generation, semantic mapping, and segmentation/VQA evaluation.</figcaption>
       </figure>
@@ -120,12 +133,12 @@
         <span>“A garage with 1 parked car near the back wall, 1 workbench to the left of the car, 1 storage rack against the right wall, and 1 larger storage rack in front of the car...”</span>
       </div>
 
-      <div class="image-pair">
-        <figure class="figure-card">
+      <div class="image-pair compact-pair">
+        <figure class="figure-card dataset-figure">
           <img src="assets/images/garage.png" alt="Generated furniture scene example: garage." />
           <figcaption><strong>Furniture scenes.</strong> Global layout, large objects, empty shelves.</figcaption>
         </figure>
-        <figure class="figure-card">
+        <figure class="figure-card dataset-figure">
           <img src="assets/images/kidsroom.png" alt="Generated manipuland scene example: kids room." />
           <figcaption><strong>Manipuland scenes.</strong> Small objects, clutter, occlusions, fine relations.</figcaption>
         </figure>
@@ -158,11 +171,11 @@
       </figure>
 
       <div class="table-wrap">
-        <table>
+        <table class="data-table">
           <caption>Semantic segmentation performance under different lighting conditions.</caption>
           <thead>
             <tr>
-              <th rowspan="2">Method</th>
+              <th rowspan="2" class="left">Method</th>
               <th colspan="2">Baseline</th>
               <th colspan="2">Camera</th>
               <th colspan="2">Dynamic</th>
@@ -177,18 +190,18 @@
           </thead>
           <tbody>
             <tr>
-              <td>ConceptGraphs</td>
-              <td><strong>57.6</strong></td><td>27.9</td>
-              <td><strong>53.7</strong></td><td>14.8</td>
-              <td><strong>56.5</strong></td><td>28.0</td>
-              <td><strong>55.3</strong></td><td>26.6</td>
+              <th class="row-head">ConceptGraphs</th>
+              <td class="best">57.6</td><td>27.9</td>
+              <td class="best">53.7</td><td>14.8</td>
+              <td class="best">56.5</td><td>28.0</td>
+              <td class="best">55.3</td><td>26.6</td>
             </tr>
             <tr>
-              <td>BBQ</td>
-              <td>47.0</td><td><strong>68.4</strong></td>
-              <td>42.0</td><td><strong>42.8</strong></td>
-              <td>48.2</td><td><strong>63.5</strong></td>
-              <td>45.3</td><td><strong>53.5</strong></td>
+              <th class="row-head">BBQ</th>
+              <td>47.0</td><td class="best">68.4</td>
+              <td>42.0</td><td class="best">42.8</td>
+              <td>48.2</td><td class="best">63.5</td>
+              <td>45.3</td><td class="best">53.5</td>
             </tr>
           </tbody>
         </table>
@@ -199,23 +212,28 @@
       </p>
 
       <div class="table-wrap">
-        <table>
+        <table class="data-table grouped-table">
           <caption>Prompt-grounded QA accuracy (%) for Measurements and Relations.</caption>
           <thead>
             <tr>
-              <th>Subset</th><th>Category</th><th>Method</th>
-              <th>Baseline</th><th>Camera</th><th>Dynamic</th><th>Nominal</th>
+              <th class="left">Subset</th>
+              <th class="left">Category</th>
+              <th class="left">Method</th>
+              <th>Baseline</th>
+              <th>Camera</th>
+              <th>Dynamic</th>
+              <th>Nominal</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td rowspan="4">Furniture</td><td rowspan="2">Measurements</td><td>ConceptGraphs</td><td>12.2</td><td>9.2</td><td><strong>15.3</strong></td><td><strong>14.3</strong></td></tr>
-            <tr><td>BBQ</td><td><strong>15.3</strong></td><td><strong>24.5</strong></td><td>12.2</td><td>12.2</td></tr>
-            <tr><td rowspan="2">Relations</td><td>ConceptGraphs</td><td>12.9</td><td>6.4</td><td><strong>20.5</strong></td><td>17.0</td></tr>
-            <tr><td>BBQ</td><td><strong>18.7</strong></td><td><strong>24.6</strong></td><td>14.6</td><td><strong>18.1</strong></td></tr>
-            <tr><td rowspan="4">Manipuland</td><td rowspan="2">Measurements</td><td>ConceptGraphs</td><td>12.9</td><td>11.4</td><td>17.1</td><td>12.9</td></tr>
-            <tr><td>BBQ</td><td><strong>15.7</strong></td><td><strong>24.3</strong></td><td><strong>18.6</strong></td><td><strong>22.9</strong></td></tr>
-            <tr><td rowspan="2">Relations</td><td>ConceptGraphs</td><td>15.0</td><td>14.0</td><td>13.0</td><td>9.0</td></tr>
-            <tr><td>BBQ</td><td><strong>16.0</strong></td><td><strong>21.0</strong></td><td><strong>14.0</strong></td><td><strong>19.0</strong></td></tr>
+            <tr class="group-start"><th rowspan="4" class="group-label">Furniture</th><td rowspan="2" class="category">Measurements</td><th class="row-head">ConceptGraphs</th><td>12.2</td><td>9.2</td><td class="best">15.3</td><td class="best">14.3</td></tr>
+            <tr><th class="row-head">BBQ</th><td class="best">15.3</td><td class="best">24.5</td><td>12.2</td><td>12.2</td></tr>
+            <tr class="subgroup-start"><td rowspan="2" class="category">Relations</td><th class="row-head">ConceptGraphs</th><td>12.9</td><td>6.4</td><td class="best">20.5</td><td>17.0</td></tr>
+            <tr><th class="row-head">BBQ</th><td class="best">18.7</td><td class="best">24.6</td><td>14.6</td><td class="best">18.1</td></tr>
+            <tr class="group-start"><th rowspan="4" class="group-label">Manipuland</th><td rowspan="2" class="category">Measurements</td><th class="row-head">ConceptGraphs</th><td>12.9</td><td>11.4</td><td>17.1</td><td>12.9</td></tr>
+            <tr><th class="row-head">BBQ</th><td class="best">15.7</td><td class="best">24.3</td><td class="best">18.6</td><td class="best">22.9</td></tr>
+            <tr class="subgroup-start"><td rowspan="2" class="category">Relations</td><th class="row-head">ConceptGraphs</th><td>15.0</td><td>14.0</td><td>13.0</td><td>9.0</td></tr>
+            <tr><th class="row-head">BBQ</th><td class="best">16.0</td><td class="best">21.0</td><td class="best">14.0</td><td class="best">19.0</td></tr>
           </tbody>
         </table>
       </div>
@@ -225,54 +243,36 @@
       </div>
 
       <div class="table-wrap secondary-table">
-        <table>
+        <table class="data-table grouped-table compact-table">
           <caption>Question-source ablation: standard image-derived VQA vs. prompt-grounded questions.</caption>
           <thead>
-            <tr><th>Subset</th><th>Category</th><th>Method</th><th>Standard</th><th>PromptGT</th></tr>
+            <tr><th class="left">Subset</th><th class="left">Category</th><th class="left">Method</th><th>Standard</th><th>PromptGT</th></tr>
           </thead>
           <tbody>
-            <tr><td rowspan="4">Furniture</td><td rowspan="2">Measurements</td><td>ConceptGraphs</td><td><strong>30.6</strong></td><td>12.2</td></tr>
-            <tr><td>BBQ</td><td><strong>18.4</strong></td><td>15.3</td></tr>
-            <tr><td rowspan="2">Relations</td><td>ConceptGraphs</td><td><strong>19.7</strong></td><td>12.9</td></tr>
-            <tr><td>BBQ</td><td><strong>24.6</strong></td><td>18.7</td></tr>
-            <tr><td rowspan="4">Manipuland</td><td rowspan="2">Measurements</td><td>ConceptGraphs</td><td><strong>32.2</strong></td><td>12.9</td></tr>
-            <tr><td>BBQ</td><td><strong>33.9</strong></td><td>15.7</td></tr>
-            <tr><td rowspan="2">Relations</td><td>ConceptGraphs</td><td><strong>22.2</strong></td><td>15.0</td></tr>
-            <tr><td>BBQ</td><td><strong>26.3</strong></td><td>16.0</td></tr>
+            <tr class="group-start"><th rowspan="4" class="group-label">Furniture</th><td rowspan="2" class="category">Measurements</td><th class="row-head">ConceptGraphs</th><td class="best">30.6</td><td>12.2</td></tr>
+            <tr><th class="row-head">BBQ</th><td class="best">18.4</td><td>15.3</td></tr>
+            <tr class="subgroup-start"><td rowspan="2" class="category">Relations</td><th class="row-head">ConceptGraphs</th><td class="best">19.7</td><td>12.9</td></tr>
+            <tr><th class="row-head">BBQ</th><td class="best">24.6</td><td>18.7</td></tr>
+            <tr class="group-start"><th rowspan="4" class="group-label">Manipuland</th><td rowspan="2" class="category">Measurements</td><th class="row-head">ConceptGraphs</th><td class="best">32.2</td><td>12.9</td></tr>
+            <tr><th class="row-head">BBQ</th><td class="best">33.9</td><td>15.7</td></tr>
+            <tr class="subgroup-start"><td rowspan="2" class="category">Relations</td><th class="row-head">ConceptGraphs</th><td class="best">22.2</td><td>15.0</td></tr>
+            <tr><th class="row-head">BBQ</th><td class="best">26.3</td><td>16.0</td></tr>
           </tbody>
         </table>
       </div>
       <p class="result-note">PromptGT is stricter because it directly probes prompt-specified counts and relations rather than trajectory-dependent observations.</p>
     </section>
 
-    <section class="section" id="materials">
-      <p class="section-label">Artifacts</p>
-      <h2>Project materials</h2>
-      <div class="artifact-grid">
-        <a class="artifact" href="https://github.com/be2rlab/OSMa-Bench-v2">
-          <h3>Repository</h3>
-          <p>Code and benchmark pipeline.</p>
-        </a>
-        <a class="artifact" href="https://arxiv.org/abs/2605.26831">
-          <h3>Paper</h3>
-          <p>arXiv preprint.</p>
-        </a>
-        <a class="artifact" href="TODO_HUGGINGFACE_URL">
-          <h3>Hugging Face</h3>
-          <p>Dataset and generated assets.</p>
-        </a>
-      </div>
-    </section>
-
     <section class="section citation" id="citation">
       <p class="section-label">Citation</p>
-      <h2>Cite this work</h2>
-      <pre><code>@misc{kurkova2026osmabenchpp,
+      <h2>BibTeX</h2>
+      <pre><code>@misc{kurkova2026osmabench,
   title         = {OSMa-Bench++: Toward Open-Ended Benchmarking of Semantic Mapping for Manipulation with Prompt-Generated Synthetic Scenes},
   author        = {Kurkova, Regina and Popov, Maxim and Kolyubin, Sergey},
   year          = {2026},
   eprint        = {2605.26831},
   archivePrefix = {arXiv},
+  primaryClass  = {cs.RO},
   url           = {https://arxiv.org/abs/2605.26831}
 }</code></pre>
     </section>
