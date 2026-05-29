@@ -4,161 +4,282 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OSMa-Bench++ | Open-Ended Benchmarking of Semantic Mapping for Manipulation</title>
-  <meta name="description" content="OSMa-Bench++ project page: prompt-generated synthetic scenes for manipulation-oriented evaluation of open-vocabulary semantic mapping." />
+  <meta name="description" content="OSMa-Bench++: prompt-generated synthetic scenes for manipulation-oriented evaluation of open-vocabulary semantic mapping." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="hero">
     <nav class="nav">
-      <a class="brand" href="#top">OSMa-Bench++</a>
+      <a class="brand" href="#">OSMa-Bench++</a>
       <div class="nav-links">
         <a href="#overview">Overview</a>
         <a href="#pipeline">Pipeline</a>
-        <a href="#benchmark">Benchmark</a>
+        <a href="#dataset">Dataset</a>
         <a href="#results">Results</a>
+        <a href="#materials">Materials</a>
         <a href="#citation">Citation</a>
       </div>
     </nav>
 
-    <section id="top" class="hero-content">
+    <div class="hero-content">
       <p class="eyebrow">ICRA 2026 Workshop · Open Challenges for Rigorous Robot Perception</p>
       <h1>OSMa-Bench++: Toward Open-Ended Benchmarking of Semantic Mapping for Manipulation with Prompt-Generated Synthetic Scenes</h1>
       <p class="subtitle">
-        A manipulation-oriented extension of OSMa-Bench for evaluating open-vocabulary semantic maps under controlled synthetic conditions: clutter, small objects, support relations, containment, and lighting variation.
+        A manipulation-oriented extension of OSMa-Bench for evaluating open-vocabulary semantic maps under controlled synthetic conditions:
+        clutter, small objects, support relations, containment, and lighting variation.
       </p>
       <div class="button-row">
-        <a class="button primary" href="https://openreview.net/forum?id=GFhJT4YJBK" target="_blank" rel="noopener">Paper</a>
-        <a class="button" href="https://github.com/be2rlab/OSMa-Bench-v2" target="_blank" rel="noopener">Code</a>
-        <a class="button" href="#benchmark">Dataset summary</a>
+        <a class="button primary" href="https://arxiv.org/abs/2605.26831">Paper</a>
+        <a class="button" href="https://github.com/be2rlab/OSMa-Bench-v2">Code</a>
+        <a class="button" href="TODO_HUGGINGFACE_URL">Hugging Face</a>
+        <a class="button" href="#materials">Project materials</a>
       </div>
-    </section>
+    </div>
   </header>
 
   <main>
-    <section id="overview" class="section two-col">
+    <section class="section two-col" id="overview">
       <div>
         <p class="section-label">Motivation</p>
-        <h2>Why manipulation-oriented semantic mapping needs a stronger benchmark</h2>
+        <h2>Why manipulation-oriented semantic mapping needs targeted evaluation</h2>
       </div>
       <div class="body-text">
         <p>
-          Existing open-vocabulary semantic mapping methods can detect objects and build scene-level representations, but downstream manipulation requires more than object names. A robot often needs reliable object counts, support relations, containment, relative placement, and small manipulable objects grounded in 3D space.
+          Existing open-vocabulary semantic mapping methods can detect objects and build scene-level representations,
+          but downstream manipulation requires more than object names. A robot often needs reliable object counts,
+          support relations, containment, relative placement, and small manipulable objects grounded in 3D space.
         </p>
         <p>
-          OSMa-Bench++ targets this gap by generating controlled indoor scenes from prompts and evaluating whether semantic maps preserve information that is relevant for mobile manipulation.
+          OSMa-Bench++ targets this gap by generating controlled indoor scenes from prompts and evaluating whether
+          semantic maps preserve information that is relevant for mobile manipulation.
         </p>
       </div>
     </section>
 
-    <section id="pipeline" class="section">
+    <section class="section" id="pipeline">
       <p class="section-label">Pipeline</p>
       <h2>Prompt-grounded scene generation and evaluation</h2>
       <div class="pipeline-grid">
         <article class="card">
           <span class="step">01</span>
           <h3>Prompt generation</h3>
-          <p>LLM-generated indoor scene descriptions are filtered for diversity and manipulation relevance. Prompts emphasize furniture-anchored layouts, small objects, and explicit spatial relations.</p>
+          <p>Generate diverse indoor scene descriptions with an LLM, then filter near-duplicates using cosine similarity to retain varied layouts, small objects, clutter, and spatial relations.</p>
         </article>
         <article class="card">
           <span class="step">02</span>
-          <h3>SceneSmith synthesis</h3>
-          <p>Selected prompts are converted into synthetic indoor scenes with furniture, manipulable objects, clutter, and challenging layouts.</p>
+          <h3>Scene synthesis</h3>
+          <p>Create 3D scenes in SceneSmith directly from the generated prompts.</p>
         </article>
         <article class="card">
           <span class="step">03</span>
-          <h3>Simulation export</h3>
-          <p>Generated scenes are converted into a Habitat-compatible dataset and rendered through the HaDaGe simulation pipeline.</p>
+          <h3>Habitat conversion</h3>
+          <p>Convert SceneSmith assets into a Habitat-compatible format for simulation.</p>
         </article>
         <article class="card">
           <span class="step">04</span>
-          <h3>VQA evaluation</h3>
-          <p>Semantic maps are evaluated with prompt-grounded visual questions covering object existence, relations, measurements, manipulation preconditions, and reachability.</p>
+          <h3>RGB-D generation</h3>
+          <p>Use HaDaGe to generate RGB-D trajectories under multiple lighting conditions.</p>
+        </article>
+        <article class="card">
+          <span class="step">05</span>
+          <h3>Semantic mapping</h3>
+          <p>Build semantic maps using ConceptGraphs and BBQ.</p>
+        </article>
+        <article class="card">
+          <span class="step">06</span>
+          <h3>Evaluation</h3>
+          <p>Evaluate segmentation quality and scene-graph completeness with prompt-grounded object counting and relation queries.</p>
         </article>
       </div>
+
+      <figure class="figure-card wide-figure">
+        <img src="assets/images/full_pipeline.png" alt="OSMa-Bench++ pipeline: prompt generation, SceneSmith synthesis, Habitat conversion, RGB-D trajectory generation, semantic mapping, and evaluation." />
+        <figcaption>OSMa-Bench++ pipeline: prompt generation, SceneSmith synthesis, Habitat conversion, RGB-D trajectory generation, semantic mapping, and segmentation/VQA evaluation.</figcaption>
+      </figure>
     </section>
 
-    <section id="benchmark" class="section highlight">
-      <div>
-        <p class="section-label">Benchmark setup</p>
-        <h2>Controlled synthetic testbed</h2>
-      </div>
+    <section class="section" id="dataset">
+      <p class="section-label">Dataset</p>
+      <h2>Controllable indoor scenarios for manipulation-oriented evaluation</h2>
+
       <div class="stats-grid">
-        <div class="stat">
-          <strong>40</strong>
-          <span>generated scenes</span>
-        </div>
-        <div class="stat">
-          <strong>4</strong>
-          <span>lighting configurations</span>
-        </div>
-        <div class="stat">
-          <strong>160</strong>
-          <span>rendered trajectories</span>
-        </div>
-        <div class="stat">
-          <strong>2</strong>
-          <span>mapping methods evaluated</span>
-        </div>
+        <div class="stat"><strong>350</strong><span>prompts</span></div>
+        <div class="stat"><strong>40</strong><span>scenes</span></div>
+        <div class="stat"><strong>160</strong><span>RGB-D sequences</span></div>
+        <div class="stat"><strong>98.0%</strong><span>prompt fidelity</span></div>
       </div>
-      <div class="config-list">
+
+      <div class="body-text narrow-text">
+        <p>
+          The generated dataset extends fixed-scene evaluation with controllable indoor scenarios. Furniture scenes test whether methods preserve global layout and large-object structure, while manipuland scenes stress-test small-object detection, clutter handling, occlusions, and relation understanding required for manipulation.
+        </p>
+      </div>
+
+      <div class="prompt-box">
+        <strong>Example scene prompt:</strong>
+        <span>“A garage with 1 parked car near the back wall, 1 workbench to the left of the car, 1 storage rack against the right wall, and 1 larger storage rack in front of the car...”</span>
+      </div>
+
+      <div class="image-pair">
+        <figure class="figure-card">
+          <img src="assets/images/garage.png" alt="Generated furniture scene example: garage." />
+          <figcaption><strong>Furniture scenes.</strong> Global layout, large objects, empty shelves.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="assets/images/kidsroom.png" alt="Generated manipuland scene example: kids room." />
+          <figcaption><strong>Manipuland scenes.</strong> Small objects, clutter, occlusions, fine relations.</figcaption>
+        </figure>
+      </div>
+
+      <div class="config-list lighting-grid">
         <h3>Lighting configurations</h3>
         <ul>
-          <li><code>baseline</code> — default rendering configuration</li>
-          <li><code>camera</code> — camera-attached lighting</li>
-          <li><code>dynamic_lights</code> — scene-level dynamic lights</li>
-          <li><code>no_lights</code> — low-illumination stress condition</li>
+          <li><code>baseline</code> — static, non-uniform light sources.</li>
+          <li><code>nominal</code> — uniform illumination from emissive meshes.</li>
+          <li><code>camera</code> — directional light attached to the robot camera.</li>
+          <li><code>dynamic_lights</code> — illumination changes along the robot trajectory.</li>
         </ul>
       </div>
     </section>
 
-    <section id="results" class="section two-col">
-      <div>
-        <p class="section-label">Preliminary findings</p>
-        <h2>What the benchmark reveals</h2>
-      </div>
-      <div class="body-text">
+    <section class="section" id="results">
+      <p class="section-label">Results</p>
+      <h2>Segmentation robustness and prompt-grounded scene-graph completeness</h2>
+
+      <div class="body-text narrow-text">
         <p>
-          The evaluation highlights that current open-vocabulary scene graphs still preserve manipulation-critical structure only partially. Prompt-grounded measurements and object relations remain difficult, especially when scenes include clutter, small manipulable objects, and challenging spatial arrangements.
-        </p>
-        <p>
-          BBQ and ConceptGraphs show different robustness profiles: BBQ is often stronger on relation-oriented and manipuland settings, while ConceptGraphs can be more stable under dynamic lighting. Segmentation quality and graph-level VQA performance do not always improve together, which motivates evaluating both geometric and semantic properties of the map.
+          We evaluate two scene-graph-based open semantic mapping methods: ConceptGraphs and BBQ. OSMa-Bench++ reveals complementary failure modes: segmentation robustness, object recovery, and scene-graph completeness degrade differently across methods and lighting conditions.
         </p>
       </div>
+
+      <figure class="figure-card result-figure">
+        <img src="assets/images/semseg_change_relative_to_baseline.png" alt="Relative change in mAcc and f-mIoU under lighting variation." />
+        <figcaption>Relative change in <em>mAcc</em> and <em>f-mIoU</em> under lighting variation.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Semantic segmentation performance under different lighting conditions.</caption>
+          <thead>
+            <tr>
+              <th rowspan="2">Method</th>
+              <th colspan="2">Baseline</th>
+              <th colspan="2">Camera</th>
+              <th colspan="2">Dynamic</th>
+              <th colspan="2">Nominal</th>
+            </tr>
+            <tr>
+              <th>mAcc</th><th>f-mIoU</th>
+              <th>mAcc</th><th>f-mIoU</th>
+              <th>mAcc</th><th>f-mIoU</th>
+              <th>mAcc</th><th>f-mIoU</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ConceptGraphs</td>
+              <td><strong>57.6</strong></td><td>27.9</td>
+              <td><strong>53.7</strong></td><td>14.8</td>
+              <td><strong>56.5</strong></td><td>28.0</td>
+              <td><strong>55.3</strong></td><td>26.6</td>
+            </tr>
+            <tr>
+              <td>BBQ</td>
+              <td>47.0</td><td><strong>68.4</strong></td>
+              <td>42.0</td><td><strong>42.8</strong></td>
+              <td>48.2</td><td><strong>63.5</strong></td>
+              <td>45.3</td><td><strong>53.5</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="result-note">
+        Camera lighting causes the strongest degradation. BBQ keeps higher <em>f-mIoU</em>, while ConceptGraphs achieves higher <em>mAcc</em>, indicating broader object recovery.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Prompt-grounded QA accuracy (%) for Measurements and Relations.</caption>
+          <thead>
+            <tr>
+              <th>Subset</th><th>Category</th><th>Method</th>
+              <th>Baseline</th><th>Camera</th><th>Dynamic</th><th>Nominal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="4">Furniture</td><td rowspan="2">Measurements</td><td>ConceptGraphs</td><td>12.2</td><td>9.2</td><td><strong>15.3</strong></td><td><strong>14.3</strong></td></tr>
+            <tr><td>BBQ</td><td><strong>15.3</strong></td><td><strong>24.5</strong></td><td>12.2</td><td>12.2</td></tr>
+            <tr><td rowspan="2">Relations</td><td>ConceptGraphs</td><td>12.9</td><td>6.4</td><td><strong>20.5</strong></td><td>17.0</td></tr>
+            <tr><td>BBQ</td><td><strong>18.7</strong></td><td><strong>24.6</strong></td><td>14.6</td><td><strong>18.1</strong></td></tr>
+            <tr><td rowspan="4">Manipuland</td><td rowspan="2">Measurements</td><td>ConceptGraphs</td><td>12.9</td><td>11.4</td><td>17.1</td><td>12.9</td></tr>
+            <tr><td>BBQ</td><td><strong>15.7</strong></td><td><strong>24.3</strong></td><td><strong>18.6</strong></td><td><strong>22.9</strong></td></tr>
+            <tr><td rowspan="2">Relations</td><td>ConceptGraphs</td><td>15.0</td><td>14.0</td><td>13.0</td><td>9.0</td></tr>
+            <tr><td>BBQ</td><td><strong>16.0</strong></td><td><strong>21.0</strong></td><td><strong>14.0</strong></td><td><strong>19.0</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="takeaway">
+        <strong>Takeaway:</strong> current open-vocabulary semantic maps still struggle to preserve object counts, support relations, containment, and relative arrangement in manipulation-oriented scenes.
+      </div>
+
+      <div class="table-wrap secondary-table">
+        <table>
+          <caption>Question-source ablation: standard image-derived VQA vs. prompt-grounded questions.</caption>
+          <thead>
+            <tr><th>Subset</th><th>Category</th><th>Method</th><th>Standard</th><th>PromptGT</th></tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="4">Furniture</td><td rowspan="2">Measurements</td><td>ConceptGraphs</td><td><strong>30.6</strong></td><td>12.2</td></tr>
+            <tr><td>BBQ</td><td><strong>18.4</strong></td><td>15.3</td></tr>
+            <tr><td rowspan="2">Relations</td><td>ConceptGraphs</td><td><strong>19.7</strong></td><td>12.9</td></tr>
+            <tr><td>BBQ</td><td><strong>24.6</strong></td><td>18.7</td></tr>
+            <tr><td rowspan="4">Manipuland</td><td rowspan="2">Measurements</td><td>ConceptGraphs</td><td><strong>32.2</strong></td><td>12.9</td></tr>
+            <tr><td>BBQ</td><td><strong>33.9</strong></td><td>15.7</td></tr>
+            <tr><td rowspan="2">Relations</td><td>ConceptGraphs</td><td><strong>22.2</strong></td><td>15.0</td></tr>
+            <tr><td>BBQ</td><td><strong>26.3</strong></td><td>16.0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="result-note">PromptGT is stricter because it directly probes prompt-specified counts and relations rather than trajectory-dependent observations.</p>
     </section>
 
-    <section class="section">
+    <section class="section" id="materials">
       <p class="section-label">Artifacts</p>
       <h2>Project materials</h2>
       <div class="artifact-grid">
-        <a class="artifact" href="https://github.com/be2rlab/OSMa-Bench-v2" target="_blank" rel="noopener">
+        <a class="artifact" href="https://github.com/be2rlab/OSMa-Bench-v2">
           <h3>Repository</h3>
           <p>Code and benchmark pipeline.</p>
         </a>
-        <a class="artifact" href="https://openreview.net/forum?id=GFhJT4YJBK" target="_blank" rel="noopener">
+        <a class="artifact" href="https://arxiv.org/abs/2605.26831">
           <h3>Paper</h3>
-          <p>Workshop submission and final version.</p>
+          <p>arXiv preprint.</p>
         </a>
-        <a class="artifact" href="#" aria-disabled="true">
-          <h3>Dataset</h3>
-          <p>Coming soon / add dataset link here.</p>
+        <a class="artifact" href="TODO_HUGGINGFACE_URL">
+          <h3>Hugging Face</h3>
+          <p>Dataset and generated assets.</p>
         </a>
       </div>
     </section>
 
-    <section id="citation" class="section citation">
+    <section class="section citation" id="citation">
       <p class="section-label">Citation</p>
       <h2>Cite this work</h2>
-      <pre><code>@inproceedings{kurkova2026osmabenchpp,
-  title     = {OSMa-Bench++: Toward Open-Ended Benchmarking of Semantic Mapping for Manipulation with Prompt-Generated Synthetic Scenes},
-  author    = {Kurkova, Regina and others},
-  booktitle = {ICRA 2026 Workshop on Open Challenges for Rigorous Robot Perception},
-  year      = {2026}
+      <pre><code>@misc{kurkova2026osmabenchpp,
+  title         = {OSMa-Bench++: Toward Open-Ended Benchmarking of Semantic Mapping for Manipulation with Prompt-Generated Synthetic Scenes},
+  author        = {Kurkova, Regina and Popov, Maxim and Kolyubin, Sergey},
+  year          = {2026},
+  eprint        = {2605.26831},
+  archivePrefix = {arXiv},
+  url           = {https://arxiv.org/abs/2605.26831}
 }</code></pre>
     </section>
   </main>
 
   <footer class="footer">
-    <p>OSMa-Bench++ · Open-vocabulary semantic mapping for mobile manipulation</p>
+    <span>OSMa-Bench++ · Open-vocabulary semantic mapping for mobile manipulation</span>
   </footer>
 </body>
 </html>
