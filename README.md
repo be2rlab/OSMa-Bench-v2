@@ -1,5 +1,7 @@
-> Project page, paper, and dataset links will be added after release.
-
+> [!NOTE]
+> **OSMa-Bench++** was presented at the **ICRA 2026 Workshop on Open Challenges for Rigorous Robot Perception**.
+>
+> **Links:** [Preprint](https://arxiv.org/abs/2605.26831) · [Project page](https://be2rlab.github.io/OSMa-Bench-v2/)
 # OSMa-Bench++
 
 OSMa-Bench++ is a prompt-grounded extension pipeline for evaluating open-vocabulary semantic mapping methods on generated indoor scenes. It connects [SceneSmith](https://github.com/nepfaff/scenesmith), [Habitat / Habitat-Lab](https://github.com/facebookresearch/habitat-lab), [HaDaGe](https://github.com/warmhammer/habitat_data_generator), and the original [OSMa-Bench](https://github.com/be2rlab/OSMa-Bench) VQA code.
